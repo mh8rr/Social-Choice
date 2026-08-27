@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کارگاه انتخابات اجتماعی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#06080f;--card:#0e1629;--accent:#38bdf8;--accent2:#818cf8;
+--green:#34d399;--red:#f87171;--yellow:#fbbf24;--pink:#f472b6;--text:#e2e8f0;--muted:#94a3b8;--dim:#475569;--border:rgba(51,65,85,.6)}
+body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:2}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(56,189,248,.05),transparent 50%),radial-gradient(ellipse at 70% 100%,rgba(129,140,248,.05),transparent 50%);pointer-events:none}
+
+.W{max-width:920px;margin:0 auto;padding:20px;position:relative;z-index:1}
+h1{font-size:1.9rem;font-weight:900;text-align:center;margin-bottom:2px;
+background:linear-gradient(135deg,var(--accent),var(--accent2),var(--pink));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--muted);margin-bottom:28px;font-size:.85rem}
+
+/* Progress */
+.ptrack{position:fixed;top:0;left:0;right:0;height:3px;background:#0e1629;z-index:200}
+.pbar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width .4s ease}
+
+/* State */
+.S{display:none;animation:cin .45s ease}.S.on{display:block}
+@keyframes cin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Cards */
+.C{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:18px;position:relative}
+.C::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.25),transparent)}
+
+/* Goal Banner */
+.goal{padding:14px 18px;border-radius:14px;margin-bottom:18px;border:1px dashed;
+display:flex;align-items:flex-start;gap:12px;line-height:1.9;font-size:.92rem}
+.goal-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.goal b{font-weight:700}
+.goal-blue{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.04)}
+.goal-purple{border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04)}
+.goal-green{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.04)}
+.goal-yellow{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.04)}
+
+/* Badge */
+.bdg{display:inline-block;padding:3px 11px;border-radius:18px;font-size:.68rem;font-weight:700;letter-spacing:.5px}
+.bdg-b{background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.2)}
+.bdg-p{background:rgba(129,140,248,.1);color:var(--accent2);border:1px solid rgba(129,140,248,.2)}
+.bdg-g{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.bdg-y{background:rgba(251,191,36,.1);color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;flex-shrink:0}
+.st{font-size:1.2rem;font-weight:700}
+.meta{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.mt{padding:3px 10px;border-radius:8px;font-size:.73rem;background:rgba(255,255,255,.02);color:var(--muted);border:1px solid var(--border)}
+
+/* Canvas */
+.gbox{background:rgba(6,8,15,.85);border:1px solid var(--border);border-radius:14px;padding:14px;margin:14px 0;text-align:center}
+.gbox canvas{display:block;margin:0 auto}
+
+/* Vote Input */
+.vi{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:16px;margin:12px 0}
+.vi h3{font-size:.92rem;font-weight:600;color:var(--accent);margin-bottom:10px}
+select{background:rgba(6,8,15,.8);border:1px solid var(--border);color:var(--text);
+padding:6px 8px;border-radius:8px;font-family:inherit;font-size:.8rem;cursor:pointer}
+select:focus{outline:none;border-color:var(--accent)}
+
+.btn{padding:8px 20px;border:none;border-radius:10px;font-family:inherit;font-size:.82rem;
+font-weight:600;cursor:pointer;transition:all .2s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0f172a}
+.btn-g{background:linear-gradient(135deg,var(--green),#06b6d4);color:#0f172a}
+.btn-h{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--border)}
+.bg{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* Step Card */
+.sc{padding:12px 16px;border-radius:12px;margin:6px 0;border:1px solid var(--border);
+background:rgba(255,255,255,.01);opacity:0;transform:translateY(8px);
+transition:all .4s ease}
+.sc.on{opacity:1;transform:none}
+.sc .sl{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:3px;letter-spacing:.3px}
+.sc .sb{font-size:.87rem;line-height:1.9}
+.w{color:var(--green);font-weight:700}.l{color:var(--red);font-weight:700}
+.hi{color:var(--accent);font-weight:600}
+
+/* Bars */
+.bars{display:flex;gap:14px;align-items:flex-end;justify-content:center;height:140px;margin:14px 0}
+.bcol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;max-width:70px}
+.bar{width:100%;border-radius:6px 6px 2px 2px;transition:height .6s ease;min-height:2px}
+.bval{font-size:.72rem;color:var(--muted);font-weight:600}
+.blbl{font-size:.9rem;font-weight:700}
+
+/* Voter chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{padding:4px 12px;border-radius:16px;font-size:.76rem;font-weight:600;border:1px solid var(--border);
+background:rgba(255,255,255,.02)}
+
+/* Nav */
+.dots{display:flex;gap:5px;justify-content:center;margin:22px 0}
+.dot{width:8px;height:8px;border-radius:50%;border:none;background:var(--dim);cursor:pointer;padding:0;transition:all .3s}
+.dot.on{background:var(--accent);transform:scale(1.5);box-shadow:0 0 8px var(--accent)}
+.dot.ok{background:var(--green)}
+
+/* Cond item */
+.ci{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);
+border-radius:10px;margin:5px 0;cursor:pointer;transition:all .25s;user-select:none}
+.ci:hover{border-color:var(--accent);background:rgba(56,189,248,.03)}
+.ci.ck{border-color:var(--green);background:rgba(52,211,153,.04)}
+.ci .ico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;
+justify-content:center;font-size:.72rem;background:rgba(255,255,255,.04);color:var(--dim);transition:all .25s;flex-shrink:0}
+.ci.ck .ico{background:rgba(52,211,153,.12);color:var(--green)}
+
+/* Method accordion */
+.mp{border:1px solid var(--border);border-radius:14px;margin:8px 0;overflow:hidden}
+.mh{padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+transition:background .2s;user-select:none}
+.mh:hover{background:rgba(255,255,255,.02)}
+.mh .arr{color:var(--dim);font-size:.7rem;transition:transform .3s}
+.mh.op .arr{transform:rotate(180deg)}
+.mb{max-height:0;overflow:hidden;transition:max-height .5s ease;padding:0 18px}
+.mb.op{max-height:3000px;padding:0 18px 16px}
+
+/* Final table */
+.ftbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;
+border:1px solid var(--border);margin:14px 0}
+.ftbl th{padding:10px 6px;background:rgba(255,255,255,.03);font-size:.7rem;font-weight:600;
+color:var(--muted);border-bottom:1px solid var(--border)}
+.ftbl td{padding:10px 6px;text-align:center;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.02)}
+.ftbl tr:last-child td{border-bottom:none}
+.ck-w{color:var(--green);font-weight:700}.ck-l{color:var(--red);font-weight:700}
+
+/* Hint */
+.hint{position:fixed;bottom:14px;left:14px;right:14px;display:flex;justify-content:center;z-index:50}
+.hint-i{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px 18px;
+font-size:.75rem;color:var(--muted)}
+
+@media(max-width:640px){.W{padding:10px}.C{padding:16px}h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<div class="ptrack"><div class="pbar" id="pb"></div></div>
+
+<div class="W">
+<h1>کارگاه تعاملی انتخابات اجتماعی</h1>
+<p class="sub">نظام‌های انتخاباتی از دیدگاه ریاضی — بخش اول</p>
+<div class="dots" id="dots"></div>
+
+<!-- ═══════ S1 ═══════ -->
+<div class="S on" id="s1">
+<div class="C">
+  <span class="bdg bdg-b">بخش اول · کشف مسئله</span>
+  <div class="sh"><div class="sn bdg-b">۱</div><div class="st">ایده‌های اولیه شما</div></div>
+  <div class="meta"><span class="mt">⏱ ۶ دقیقه</span></div>
+
+  <div class="goal goal-blue">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> ایده‌های اولیه شما درباره «چطور یک برنده عادلانه انتخاب کنیم» را بشنویم. قرار نیست الان جواب درست بدهیم — فقط می‌خواهیم بدانیم چه فکرهایی از قبل در ذهن شماست.</div>
+  </div>
+
+  <div class="vi">
+    <h3>💡 ایده‌هایتان را بنویسید</h3>
+    <div id="ideaList"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <input id="ideaIn" placeholder="مثلاً: هر کسی بیشترین رأی اول را دارد برنده شود..." style="flex:1;background:rgba(6,8,15,.8);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;font-family:inherit;font-size:.84rem;direction:rtl">
+      <button class="btn btn-p" onclick="addIdea()">افزودن</button>
+    </div>
+  </div>
+  <div class="bg"><button class="btn btn-g" onclick="go(2)">ادامه →</button></div>
+</div>
+</div>
+
+<!-- ═══════ S2 ═══════ -->
+<div class="S" id="s2">
+<div class="C">
+  <span class="bdg bdg-b">بخش اول · مقایسه دو به دو</span>
+  <div class="sh"><div class="sn bdg-b">۲</div><div class="st">گراف جهت‌دار مقایسه‌ها</div></div>
+  <div class="meta"><span class="mt">⏱ ۵ تا ۱۰ دقیقه</span></div>
+
+  <div class="goal goal-blue">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> یاد بگیریم چطور هر کاندیدا را با تک‌تک کاندیداهای دیگر مقایسه کنیم و نتیجه را روی <b>گراف جهت‌دار</b> نشان دهیم. فلش از <b>بازنده → برنده</b> است.</div>
+  </div>
+
+  <div class="vi">
+    <h3>🗳️ ترتیب ترجیحات هر رأی‌دهنده را مشخص کنید</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px">از بالا به پایین: اولویت اول، دوم، سوم</p>
+    <div id="voters"></div>
+    <div class="bg">
+      <button class="btn btn-h" onclick="addVoter()">+ رأی‌دهنده</button>
+      <button class="btn btn-p" onclick="runPairwise()">🔍 تحلیل مقایسه‌ای</button>
+    </div>
+  </div>
+
+  <div id="pwSteps"></div>
+  <div id="pwScore" style="display:none"></div>
+  <div class="gbox" id="pwGraph" style="display:none">
+    <canvas id="pwC" width="500" height="400"></canvas>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:6px">فلش‌ها: بازنده → برنده · ضخامت ≈ میزان اکثریت</p>
+  </div>
+  <div class="bg">
+    <button class="btn btn-h" onclick="go(1)">← قبلی</button>
+    <button class="btn btn-g" onclick="go(3)">ادامه →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ S3 ═══════ -->
+<div class="S" id="s3">
+<div class="C">
+  <span class="bdg bdg-b">بخش اول · پارادوکس کندورسه</span>
+  <div class="sh"><div class="sn bdg-b">۳</div><div class="st">تعدی، کندورسه و چرخه</div></div>
+  <div class="meta"><span class="mt">⏱ ۱۰ دقیقه</span></div>
+
+  <div class="goal goal-blue">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> ببینیم وقتی A از B بهتر باشد، و B از C بهتر، آیا <b>همیشه</b> A از C بهتر است؟ (تعدی) — و بعد کشف کنیم که <b>گاهی جواب نه است!</b></div>
+  </div>
+
+  <div class="vi">
+    <h3>🔄 شبیه‌سازی زنده پارادوکس کندورسه</h3>
+    <div class="chips">
+      <div class="chip" style="border-color:var(--accent)">رأی ۱: A ≻ B ≻ C</div>
+      <div class="chip" style="border-color:var(--accent2)">رأی ۲: B ≻ C ≻ A</div>
+      <div class="chip" style="border-color:var(--pink)">رأی ۳: C ≻ A ≻ B</div>
+    </div>
+    <button class="btn btn-p" onclick="runCondorcet()" id="cBtn" style="margin-top:10px">▶ مقایسه‌ها را مرحله به مرحله اجرا کن</button>
+  </div>
+
+  <div id="cSteps"></div>
+  <div class="gbox" id="cGraph" style="display:none">
+    <canvas id="cC" width="420" height="360"></canvas>
+    <p style="font-size:.78rem;color:var(--red);font-weight:600;margin-top:6px">🔄 چرخه تشکیل شد! هیچ برنده‌ای وجود ندارد</p>
+  </div>
+
+  <div class="sc on" id="cInsight" style="display:none;border-color:var(--yellow);background:rgba(251,191,36,.03)">
+    <div class="sl" style="color:var(--yellow)">💡 چرا این مهم است؟</div>
+    <div class="sb">
+      <b>A ≻ B</b> یعنی A از B بهتر است · <b>B ≻ C</b> یعنی B از C بهتر است · <b>C ≻ A</b> یعنی C از A بهتر!
+      <br>مثل اینکه بگوییم «علی از رضا بالاتر، رضا از سارا بالاتر، سارا از علی بالاتر» — <span class="l">یک چرخه بی‌پایان!</span>
+      <br><br>پس روش مقایسه دو به دو <span class="l">همیشه جواب نمی‌دهد</span>. سؤال مهم: پس چه ویژگی‌هایی باید از یک سیستم رأی‌گیری خوب انتظار داشته باشیم؟
+    </div>
+  </div>
+
+  <div class="bg">
+    <button class="btn btn-h" onclick="go(2)">← قبلی</button>
+    <button class="btn btn-g" onclick="go(4)">ادامه به بخش دوم →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ S4 ═══════ -->
+<div class="S" id="s4">
+<div class="C">
+  <span class="bdg bdg-p">بخش دوم · شرط‌های لازم</span>
+  <div class="sh"><div class="sn bdg-p">۴</div><div class="st">پنج شرط یک سیستم عادلانه</div></div>
+  <div class="meta"><span class="mt">⏱ ۲۵ تا ۳۵ دقیقه</span></div>
+
+  <div class="goal goal-purple">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> مشخص کنیم از یک سیستم رأی‌گیری خوب چه <b>پنج ویژگی</b> انتظار داریم. بعداً در بخش چهارم خواهیم دید کدام روش‌ها کدام شرط‌ها را نقض می‌کنند.</div>
+  </div>
+
+  <div id="conds"></div>
+
+  <div class="bg">
+    <button class="btn btn-h" onclick="go(3)">← قبلی</button>
+    <button class="btn btn-g" onclick="go(5)">ادامه →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ S5 ═══════ -->
+<div class="S" id="s5">
+<div class="C">
+  <span class="bdg bdg-g">بخش سوم · طراحی سیستم</span>
+  <div class="sh"><div class="sn bdg-g">۵</div><div class="st">سیستم خود را بسازید</div></div>
+  <div class="meta"><span class="mt">⏱ ۳۰ دقیقه</span></div>
+
+  <div class="goal goal-green">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> با دانشی که از پنج شرط به دست آوردید، <b>سیستم خودتان</b> را طراحی کنید و ببینید چند شرط را برآورده می‌کند. هدف: تجربه تکرار شکست!</div>
+  </div>
+
+  <div class="vi">
+    <h3>🏗️ قاعده سیستم خود را بنویسید</h3>
+    <textarea id="sysRule" rows="2" placeholder="مثال: هر رأی‌دهنده به هر کاندیدا امتیاز ۱ تا ۳ بدهد، بیشترین امتیاز برنده شود..." style="width:100%;background:rgba(6,8,15,.8);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:10px;font-family:inherit;font-size:.84rem;direction:rtl;resize:vertical"></textarea>
+
+    <h3 style="margin:12px 0 8px;font-size:.9rem">🎯 کدام شرط‌ها را برآورده می‌کند؟ (کلیک کنید)</h3>
+    <div id="sysCk"></div>
+    <div class="bg">
+      <button class="btn btn-p" onclick="scoreSys()">📊 امتیازدهی</button>
+      <button class="btn btn-h" onclick="resetSys()">🔄 ریست</button>
+    </div>
+    <div id="sysRes" style="margin-top:10px"></div>
+  </div>
+
+  <div class="bg">
+    <button class="btn btn-h" onclick="go(4)">← قبلی</button>
+    <button class="btn btn-g" onclick="go(6)">ادامه →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ S6 ═══════ -->
+<div class="S" id="s6">
+<div class="C">
+  <span class="bdg bdg-y">بخش چهارم · شش روش معروف</span>
+  <div class="sh"><div class="sn bdg-y">۶</div><div class="st">بررسی تعاملی هر روش</div></div>
+  <div class="meta"><span class="mt">⏱ ۳۰+ دقیقه</span></div>
+
+  <div class="goal goal-yellow">
+    <div class="goal-icon">🎯</div>
+    <div><b>هدف این استیت:</b> شش روش معروف رأی‌گیری را روی <b>یک مجموعه رأی ثابت</b> امتحان کنیم و ببینیم هر روش <b>کدام شرط‌ها را نقض می‌کند</b>.</div>
+  </div>
+
+  <div class="vi" style="margin-bottom:16px">
+    <h3>📋 مجموعه رأی‌های نمونه (ثابت برای همه روش‌ها)</h3>
+    <div class="chips">
+      <div class="chip processed" style="border-color:var(--accent);opacity:1">رأی ۱: A ≻ B ≻ C</div>
+      <div class="chip processed" style="border-color:var(--accent);opacity:1">رأی ۲: A ≻ C ≻ B</div>
+      <div class="chip processed" style="border-color:var(--accent2);opacity:1">رأی ۳: B ≻ A ≻ C</div>
+      <div class="chip processed" style="border-color:var(--accent2);opacity:1">رأی ۴: B ≻ C ≻ A</div>
+      <div class="chip processed" style="border-color:var(--pink);opacity:1">رأی ۵: C ≻ A ≻ B</div>
+    </div>
+  </div>
+
+  <div id="methods"></div>
+
+  <div style="margin-top:20px">
+    <h3 style="font-size:1rem;margin-bottom:10px">📊 جدول مقایسه نهایی</h3>
+    <table class="ftbl" id="cmpTbl"></table>
+    <div id="cmpEnd"></div>
+  </div>
+
+  <div class="bg">
+    <button class="btn btn-h" onclick="go(5)">← قبلی</button>
+    <button class="btn btn-g" onclick="go(7)">جمع‌بندی →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ S7 ═══════ -->
+<div class="S" id="s7">
+<div class="C" style="text-align:center">
+  <span class="bdg bdg-b">🎉 پایان بخش اول</span>
+  <h2 style="font-size:1.5rem;margin:14px 0;font-weight:800">ناممکنی آرو — Arrow's Impossibility</h2>
+  <p style="color:var(--muted);max-width:580px;margin:0 auto 16px;font-size:.9rem;line-height:2.2">
+    شما کشف کردید: <b style="color:var(--text)">هیچ روش رأی‌گیری</b> نمی‌تواند همزمان تمام ویژگی‌های یک سیستم عادلانه را داشته باشد — مگر <b style="color:var(--red)">دیکتاتوری</b> که خودش غیراخلاقی است.
+    <br><br>
+    <b style="color:var(--yellow)">🔑 این دقیقاً قضیه ناممکنی آرو است.</b>
+  </p>
+  <div class="gbox"><canvas id="radarC" width="480" height="340"></canvas></div>
+  <div class="bg" style="justify-content:center;margin-top:16px"><button class="btn btn-p" onclick="go(1)">🔄 شروع مجدد</button></div>
+</div>
+</div>
+
+</div>
+
+<div class="hint"><div class="hint-i" id="hintI">استیت ۱ از ۷</div></div>
+
+<script>
+const SN=[1,2,3,4,5,6,7];let cur=1;
+function go(n){
+  document.querySelectorAll('.S').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s'+n).classList.add('on');
+  cur=n;updateUI();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===7)setTimeout(drawRadar,200);
+}
+function updateUI(){
+  const i=SN.indexOf(cur);
+  document.getElementById('pb').style.width=(i/(SN.length-1)*100)+'%';
+  document.getElementById('dots').innerHTML=SN.map((s,j)=>
+    `<button class="dot${j===i?' on':j<i?' ok':''}" onclick="go(${s})"></button>`).join('');
+  document.getElementById('hintI').textContent=['',
+    'استیت ۱ — ایده‌ها','استیت ۲ — مقایسه دو به دو','استیت ۳ — پارادوکس کندورسه',
+    'استیت ۴ — پنج شرط','استیت ۵ — طراحی سیستم','استیت ۶ — شش روش','جمع‌بندی'][cur];
+}
+
+// ═══════ S1: IDEAS ═══════
+let ideas=[];
+function addIdea(){
+  const inp=document.getElementById('ideaIn');
+  if(!inp.value.trim())return;
+  ideas.push(inp.value.trim());inp.value='';
+  document.getElementById('ideaList').innerHTML=ideas.map((t,i)=>
+    `<div class="sc on" style="margin:4px 0;border-color:var(--accent)"><div class="sb"><span class="hi">${i+1}.</span> ${t}</div></div>`).join('');
+}
+
+// ═══════ S2: PAIRWISE ═══════
+const dPrefs=[['A','B','C'],['B','C','A'],['C','A','B']];
+let vCount=3;
+function initVoters(){
+  const el=document.getElementById('voters');el.innerHTML='';
+  for(let i=0;i<vCount;i++){
+    const p=dPrefs[i]||['A','C','B'];
+    el.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;margin:5px 0;flex-wrap:wrap">
+      <span style="min-width:70px;font-size:.8rem;color:var(--muted)">رأی‌دهنده ${i+1}:</span>
+      <select data-v="${i}" data-r="0"><option${p[0]==='A'?' selected':''}>A</option><option${p[0]==='B'?' selected':''}>B</option><option${p[0]==='C'?' selected':''}>C</option></select>
+      <select data-v="${i}" data-r="1"><option${p[1]==='A'?' selected':''}>A</option><option${p[1]==='B'?' selected':''}>B</option><option${p[1]==='C'?' selected':''}>C</option></select>
+      <select data-v="${i}" data-r="2"><option${p[2]==='A'?' selected':''}>A</option><option${p[2]==='B'?' selected':''}>B</option><option${p[2]==='C'?' selected':''}>C</option></select>
+    </div>`;
+  }
+}
+function addVoter(){vCount++;const p=dPrefs[vCount-1]||['A','C','B'];
+const el=document.getElementById('voters');
+el.innerHTML+=`<div style="display:flex;align-items:center;gap:6px;margin:5px 0;flex-wrap:wrap">
+  <span style="min-width:70px;font-size:.8rem;color:var(--muted)">رأی‌دهنده ${vCount}:</span>
+  <select><option>A</option><option>B</option><option selected>C</option></select>
+  <select><option>A</option><option selected>C</option><option>B</option></select>
+  <select><option>A</option><option>B</option><option selected>C</option></select>
+</div>`;}
+
+function getVotes(){
+  const votes=[];
+  document.querySelectorAll('#voters > div').forEach(row=>{
+    const s=row.querySelectorAll('select');
+    votes.push([s[0].value,s[1].value,s[2].value]);
+  });
+  return votes;
+}
+
+function runPairwise(){
+  const votes=getVotes();const N=votes.length;
+  const pw={AB:0,AC:0,BC:0};
+
+  // Show step-by-step
+  const steps=document.getElementById('pwSteps');
+  steps.innerHTML=`<div class="sc on" style="border-color:var(--accent);margin:10px 0"><div class="sl">مرحله ۱ — بررسی تک‌تک رأی‌ها</div>
+  <div class="sb">هر رأی را باز می‌کنیم و مقایسه‌های دو به دو را ثبت می‌کنیم. فلش از بازنده به برنده است.</div></div>`;
+
+  for(let i=0;i<N;i++){
+    const v=votes[i];
+    const pos={};v.forEach((c,j)=>pos[c]=j);
+    // For each pair, who does this voter prefer?
+    const ab=pos.A<pos.B?'A':'B';
+    const ac=pos.A<pos.C?'A':'C';
+    const bc=pos.B<pos.C?'B':'C';
+    if(ab==='A')pw.AB++;else pw.AB--;
+    if(ac==='A')pw.AC++;else pw.AC--;
+    if(bc==='B')pw.BC++;else pw.BC--;
+
+    const card=document.createElement('div');
+    card.className='sc';card.id='vc'+i;
+    card.innerHTML=`<div class="sl">رأی ${i+1} — ${v.join(' ≻ ')}</div>
+    <div class="sb" style="font-size:.82rem">
+      A vs B: <span style="color:${ab==='A'?'var(--green)':'var(--red)'}">${ab} پیروز</span> &nbsp;·&nbsp;
+      A vs C: <span style="color:${ac==='A'?'var(--green)':'var(--red)'}">${ac} پیروز</span> &nbsp;·&nbsp;
+      B vs C: <span style="color:${bc==='B'?'var(--green)':'var(--red)'}">${bc} پیروز</span>
+    </div>`;
+    steps.appendChild(card);
+    setTimeout(()=>{card.classList.add('on')},(i+1)*350);
+  }
+
+  // Scoreboard
+  setTimeout(()=>{
+    const el=document.getElementById('pwScore');el.style.display='block';
+    el.innerHTML=`<div class="sc on" style="border-color:var(--accent2);margin:10px 0">
+      <div class="sl">مرحله ۲ — جمع‌بندی نتایج</div>
+      <div class="sb" style="font-size:.85rem">
+      A vs B: <span class="${pw.AB>0?'w':pw.AB<0?'l':''}">${pw.AB>0?'A +'+pw.AB:pw.AB<0?'B +'+(-pw.AB):'مساوی'}</span> &nbsp;·&nbsp;
+      A vs C: <span class="${pw.AC>0?'w':pw.AC<0?'l':''}">${pw.AC>0?'A +'+pw.AC:pw.AC<0?'C +'+(-pw.AC):'مساوی'}</span> &nbsp;·&nbsp;
+      B vs C: <span class="${pw.BC>0?'w':pw.BC<0?'l':''}">${pw.BC>0?'B +'+pw.BC:pw.BC<0?'C +'+(-pw.BC):'مساوی'}</span>
+      </div></div>`;
+  },(N+1)*350+100);
+
+  // Graph
+  setTimeout(()=>{
+    document.getElementById('pwGraph').style.display='block';
+    drawPairGraph(pw,N);
+  },(N+2)*350+200);
+}
+
+// ═══════ GRAPH ENGINE ═══════
+// Arrow direction: FROM loser TO winner
+// Convention: "از بازنده به سمت برنده"
+function drawPairGraph(pw,N){
+  const c=document.getElementById('pwC');
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+
+  const R=150;const cx=W/2,cy=H/2-10;
+  // Place nodes in triangle: A at top, B at bottom-right, C at bottom-left
+  const nodes={
+    A:{x:cx, y:cy-R, col:'#38bdf8'},
+    B:{x:cx+R*Math.sin(2*Math.PI/3), y:cy+R*Math.cos(2*Math.PI/3), col:'#818cf8'},
+    C:{x:cx-R*Math.sin(2*Math.PI/3), y:cy+R*Math.cos(2*Math.PI/3), col:'#f472b6'}
+  };
+
+  // Edges: arrow from loser to winner
+  const edges=[
+    {from:pw.AB>0?'B':'A', to:pw.AB>0?'A':'B', w:Math.abs(pw.AB), label:'A vs B'},
+    {from:pw.AC>0?'C':'A', to:pw.AC>0?'A':'C', w:Math.abs(pw.AC), label:'A vs C'},
+    {from:pw.BC>0?'C':'B', to:pw.BC>0?'B':'C', w:Math.abs(pw.BC), label:'B vs C'}
+  ];
+
+  // Detect cycle: check if arrows form a directed cycle
+  const abDir=pw.AB>0?'A':pw.AB<0?'B':null;
+  const acDir=pw.AC>0?'A':pw.AC<0?'C':null;
+  const bcDir=pw.BC>0?'B':pw.BC<0?'C':null;
+  let hasCycle=false;
+  if(abDir&&acDir&&bcDir){
+    // Check: A→B→C→A or A→C→B→A
+    if((abDir==='A'&&bcDir==='B'&&acDir==='C')||
+       (abDir==='B'&&bcDir==='C'&&acDir==='A')) hasCycle=true;
+  }
+
+  const edgeColor=hasCycle?'#f87171':'#34d399';
+
+  // Draw each edge with slight offset to avoid overlap
+  edges.forEach((e,idx)=>{
+    if(e.w===0)return;
+    const na=nodes[e.from],nb=nodes[e.to];
+    const thick=Math.max(2.5,Math.min(5,2+e.w));
+    // Offset perpendicular to edge to separate arrows
+    const dx=nb.x-na.x,dy=nb.y-na.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const nx=-dy/len,ny=dx/len;
+    const off=10*(idx-1); // offset each edge differently
+    drawArrow(ctx, na.x+nx*off, na.y+ny*off, nb.x+nx*off, nb.y+ny*off, edgeColor, thick, e.w);
+  });
+
+  // Draw nodes
+  Object.entries(nodes).forEach(([k,n])=>{
+    ctx.beginPath();ctx.arc(n.x,n.y,26,0,Math.PI*2);
+    ctx.fillStyle='#0e1629';ctx.fill();
+    ctx.strokeStyle=n.col;ctx.lineWidth=2.5;ctx.stroke();
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 18px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(k,n.x,n.y);
+  });
+
+  if(hasCycle){
+    ctx.fillStyle='rgba(248,113,113,.12)';
+    ctx.beginPath();ctx.arc(cx,cy+20,50,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f87171';ctx.font='bold 12px Vazirmatn';ctx.textAlign='center';
+    ctx.fillText('چرخه!',cx,cy+24);
+  }
+}
+
+function drawArrow(ctx,x1,y1,x2,y2,color,w,score){
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<1)return;
+  const ux=dx/len,uy=dy/len;
+
+  // Shorten from both ends to leave room for node circles
+  const gap=32;
+  const sx=x1+ux*gap,sy=y1+uy*gap;
+  const ex=x2-ux*gap,ey=y2-uy*gap;
+
+  // Line
+  ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);
+  ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.stroke();
+
+  // Arrowhead (filled triangle)
+  const aLen=14,aHalf=6;
+  ctx.beginPath();
+  ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-aLen*ux+aHalf*uy, ey-aLen*uy-aHalf*ux);
+  ctx.lineTo(ex-aLen*ux-aHalf*uy, ey-aLen*uy+aHalf*ux);
+  ctx.closePath();
+  ctx.fillStyle=color;ctx.fill();
+
+  // Score label
+  if(score!==undefined){
+    const mx=(sx+ex)/2-uy*14,my=(sy+ey)/2+ux*14;
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 11px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('+'+score,mx,my);
+  }
+}
+
+// ═══════ S3: CONDORCET ═══════
+let cRunning=false;
+function runCondorcet(){
+  if(cRunning)return;cRunning=true;
+  document.getElementById('cBtn').disabled=true;
+
+  const votes=[['A','B','C'],['B','C','A'],['C','A','B']];
+  const labels=['A','B','C'];
+  const cols=['#38bdf8','#818cf8','#f472b6'];
+
+  const comparisons=[
+    {a:0,b:1,label:'A vs B'},
+    {a:1,b:2,label:'B vs C'},
+    {a:2,b:0,label:'C vs A'}
+  ];
+
+  const el=document.getElementById('cSteps');el.innerHTML='';
+
+  comparisons.forEach((cmp,ci)=>{
+    setTimeout(()=>{
+      const counts=[0,0];
+      const details=votes.map((v,vi)=>{
+        const prefA=v.indexOf(labels[cmp.a])<v.indexOf(labels[cmp.b])?cmp.a:cmp.b;
+        counts[prefA===cmp.a?0:1]++;
+        return {voter:vi+1,prefer:prefA};
+      });
+
+      const card=document.createElement('div');
+      card.className='sc';
+      card.innerHTML=`<div class="sl">مقایسه ${ci+1}: ${cmp.label}</div>
+      <div class="sb">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
+          ${details.map(d=>`<span style="padding:3px 10px;border-radius:6px;font-size:.76rem;font-weight:600;
+            background:${d.prefer===cmp.a?'rgba(52,211,153,.1)':'rgba(248,113,113,.1)'};
+            color:${d.prefer===cmp.a?'var(--green)':'var(--red)'}">
+            رأی ${d.voter}: ${labels[d.prefer]} ≻ ${labels[d.prefer===cmp.a?cmp.b:cmp.a]}
+          </span>`).join('')}
+        </div>
+        نتیجه: <span class="w">${labels[cmp.a]} ${counts[0]} — ${counts[1]} ${labels[cmp.b]}</span>
+        → <span class="w">${counts[0]>counts[1]?labels[cmp.a]:labels[cmp.b]} برنده</span>
+      </div>`;
+      el.appendChild(card);
+      requestAnimationFrame(()=>card.classList.add('on'));
+    },(ci+1)*1200);
+  });
+
+  // Show cycle graph
+  setTimeout(()=>{
+    document.getElementById('cGraph').style.display='block';
+    drawCycleGraph();
+    document.getElementById('cInsight').style.display='block';
+    cRunning=false;
+  },4800);
+}
+
+function drawCycleGraph(){
+  const c=document.getElementById('cC');
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+
+  const R=130;const cx=W/2,cy=H/2;
+  const nodes={
+    A:{x:cx, y:cy-R, col:'#38bdf8'},
+    B:{x:cx+R*Math.sin(2*Math.PI/3), y:cy+R*Math.cos(2*Math.PI/3), col:'#818cf8'},
+    C:{x:cx-R*Math.sin(2*Math.PI/3), y:cy+R*Math.cos(2*Math.PI/3), col:'#f472b6'}
+  };
+
+  // Cycle: A beats B, B beats C, C beats A
+  // Arrows: B→A, C→B, A→C (from loser to winner)
+  const cycleEdges=[
+    {from:'B',to:'A'},
+    {from:'C',to:'B'},
+    {from:'A',to:'C'}
+  ];
+
+  // Draw edges one by one with animation
+  cycleEdges.forEach((e,i)=>{
+    setTimeout(()=>{
+      const na=nodes[e.from],nb=nodes[e.to];
+      drawArrow(ctx,na.x,na.y,nb.x,nb.y,'#f87171',3.5);
+    },i*500);
+  });
+
+  // Draw nodes after edges
+  setTimeout(()=>{
+    Object.entries(nodes).forEach(([k,n])=>{
+      ctx.beginPath();ctx.arc(n.x,n.y,26,0,Math.PI*2);
+      ctx.fillStyle='#0e1629';ctx.fill();
+      ctx.strokeStyle=n.col;ctx.lineWidth=2.5;ctx.stroke();
+      ctx.fillStyle='#e2e8f0';ctx.font='bold 18px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(k,n.x,n.y);
+    });
+  },100);
+
+  // Cycle label
+  setTimeout(()=>{
+    ctx.fillStyle='rgba(248,113,113,.12)';
+    ctx.beginPath();ctx.arc(cx,cy,45,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f87171';ctx.font='bold 13px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🔄 چرخه',cx,cy);
+    ctx.fillStyle='#f87171';ctx.font='11px Vazirmatn';
+    ctx.fillText('A→C→B→A',cx,cy+18);
+  },2000);
+}
+
+// ═══════ S4: CONDITIONS ═══════
+function initConds(){
+  const data=[
+    {name:'وجود همیشگی برنده (AAW)',en:'Always A Winner',col:'var(--accent)',
+     text:'سیستم باید <b>همیشه</b>، برای هر حالتی از رأی‌ها، یک برنده معرفی کند.',
+     bad:'پارادوکس کندورسه (A→B→C→A) این شرط را نقض می‌کند — بدون برنده!',
+     good:'روش اکثریت همیشه حداقل یک برنده دارد.'},
+    {name:'معیار کندورسه',en:'Condorcet Criterion',col:'var(--accent2)',
+     text:'اگر کاندیدایی در <b>تمام</b> مقایسه‌های دو به دو برنده باشد، باید حتماً برنده نهایی شود.',
+     bad:'روش اکثریت ممکن است کاندیدایی که همه را می‌برد، نادیده بگیرد.',
+     good:'روش کندورسه دقیقاً همین کار را می‌کند.'},
+    {name:'شرط اجماع (پارتو)',en:'Unanimity',col:'var(--green)',
+     text:'اگر <b>همه</b> بدون استثنا a را به b ترجیح دهند، b نباید برنده شود.',
+     bad:'تقریباً هیچ روشی این را نقض نمی‌کند.',
+     good:'این ساده‌ترین شرط است — همه روش‌ها آن را رعایت می‌کنند.'},
+    {name:'یکنواoy (Monotonicity)',en:'Monotonicity',col:'var(--yellow)',
+     text:'اگر a برنده باشد و یک رأی‌دهنده a را بالاتر ببرد (بدون تغییر بقیه)، a باید همچنان برنده بماند.',
+     bad:'روش هری (حذف تدریجی) می‌تواند این را نقض کند!',
+     good:'«حمایت بیشتر» هرگز نباید ضرر برساند.'},
+    {name:'استقلال از گزینه‌های نامربوط (IIA)',en:'Independence',col:'var(--pink)',
+     text:'نتیجه مقایسه A و B نباید با اضافه/حذف کاندیدای دیگری تغییر کند.',
+     bad:'تقریباً تمام روش‌ها (به جز کندورسه و دیکتاتوری) نقض می‌کنند!',
+     good:'فقط روش کندورسه و دیکتاتوری رعایت می‌کنند.'}
+  ];
+  document.getElementById('conds').innerHTML=data.map((d,i)=>`
+    <div class="sc on" style="border-color:${d.col};margin-bottom:10px;cursor:pointer" onclick="this.querySelector('.detail').style.display=this.querySelector('.detail').style.display==='none'?'block':'none'">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span style="color:${d.col};font-weight:700">${d.name}</span>
+        <span style="color:var(--dim);font-size:.72rem;margin-right:6px">${d.en}</span></div>
+        <span style="color:var(--dim);font-size:.65rem">▼ جزئیات</span>
+      </div>
+      <div style="font-size:.88rem;color:var(--muted);margin-top:5px">${d.text}</div>
+      <div class="detail" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px;padding:10px;border-radius:10px;background:rgba(248,113,113,.04);border:1px solid rgba(248,113,113,.15)">
+            <div style="font-size:.72rem;color:var(--red);font-weight:700;margin-bottom:3px">✗ چه زمانی نقض؟</div>
+            <div style="font-size:.82rem;color:var(--muted)">${d.bad}</div>
+          </div>
+          <div style="flex:1;min-width:200px;padding:10px;border-radius:10px;background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.15)">
+            <div style="font-size:.72rem;color:var(--green);font-weight:700;margin-bottom:3px">✓ کدام روش رعایت؟</div>
+            <div style="font-size:.82rem;color:var(--muted)">${d.good}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════ S5: SYSTEM DESIGN ═══════
+function initSys(){
+  const names=['AAW (وجود برنده)','کندورسه','پارتو (اجماع)','یکنواoy','IIA (استقلال)'];
+  document.getElementById('sysCk').innerHTML=names.map((n,i)=>
+    `<div class="ci" data-i="${i}" onclick="this.classList.toggle('ck');this.querySelector('.ico').textContent=this.classList.contains('ck')?'✓':'○'">
+      <span class="ico">○</span>${n}</div>`).join('');
+}
+function scoreSys(){
+  let c=0;document.querySelectorAll('#sysCk .ci').forEach(i=>{if(i.classList.contains('ck'))c++});
+  document.getElementById('sysRes').innerHTML=`
+    <div class="sc on" style="border-color:${c>=4?'var(--green)':c>=2?'var(--yellow)':'var(--red)'}">
+      <div class="sb">
+        <div style="font-size:1.4rem;color:${c>=4?'var(--green)':c>=2?'var(--yellow)':'var(--red)'}">
+          ${'★'.repeat(c)}${'☆'.repeat(5-c)}</div>
+        <div>${c} شرط از ۵ شرط برقرار
+          ${c===5?' — آیا واقعاً ممکن است؟':c>=4?' — خیلی نزدیکید!':c>=2?' — خوب شروع کردید':' — دوباره تلاش کنید!'}</div>
+      </div></div>`;
+}
+function resetSys(){
+  document.getElementById('sysRule').value='';
+  document.querySelectorAll('#sysCk .ci').forEach(i=>{i.classList.remove('ck');i.querySelector('.ico').textContent='○'});
+  document.getElementById('sysRes').innerHTML='';
+}
+
+// ═══════ S6: METHODS ═══════
+const EV=[['A','B','C'],['A','C','B'],['B','A','C'],['B','C','A'],['C','A','B']];
+const CN=['AAW','کندورسه','پارتو','یکنواoy','IIA'];
+
+function initMethods(){
+  const M=[
+    {name:'کندورسه',en:'Condorcet',col:'var(--accent)',ok:[1,1,1,1,0],
+     desc:'برنده کاندیدایی که در تمام مقایسه‌های دو به دو با همه رقبا پیروز باشد.',
+     run(){
+       let ab=0,ac=0,bc=0;
+       EV.forEach(v=>{
+         if(v.indexOf('A')<v.indexOf('B'))ab++;else if(v.indexOf('A')>v.indexOf('B'))ab--;
+         if(v.indexOf('A')<v.indexOf('C'))ac++;else if(v.indexOf('A')>v.indexOf('C'))ac--;
+         if(v.indexOf('B')<v.indexOf('C'))bc++;else if(v.indexOf('B')>v.indexOf('C'))bc--;
+       });
+       const cw=(ab>0&&ac>0)?'A':(ab<0&&bc>0)?'B':(ac<0&&bc<0)?'C':null;
+       return `<div style="font-size:.84rem;margin-bottom:8px">
+         A vs B: <span class="${ab>0?'w':ab<0?'l':''}">${ab>0?'A +'+ab:ab<0?'B +'+(-ab):'مساوی'}</span> ·
+         A vs C: <span class="${ac>0?'w':ac<0?'l':''}">${ac>0?'A +'+ac:ac<0?'C +'+(-ac):'مساوی'}</span> ·
+         B vs C: <span class="${bc>0?'w':bc<0?'l':''}">${bc>0?'B +'+bc:bc<0?'C +'+(-bc):'مساوی'}</span>
+       </div>
+       <div>نتیجه: ${cw?'<span class="w">'+cw+' برنده ✓</span>':'<span class="l">چرخه — بدون پاسخ!</span>'}</div>
+       <div class="gbox" style="margin:10px 0"><canvas id="mg0" width="360" height="300"></canvas></div>`;
+     },
+     drawGraph(){
+       const c=document.getElementById('mg0');if(!c)return;
+       const ctx=c.getContext('2d');const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+       const R=110,cx=W/2,cy=H/2;
+       const ns={A:{x:cx,y:cy-R},B:{x:cx+R*Math.sin(2*Math.PI/3),y:cy+R*Math.cos(2*Math.PI/3)},C:{x:cx-R*Math.sin(2*Math.PI/3),y:cy+R*Math.cos(2*Math.PI/3)}};
+       let ab=0,ac=0,bc=0;
+       EV.forEach(v=>{if(v.indexOf('A')<v.indexOf('B'))ab++;else ab--;if(v.indexOf('A')<v.indexOf('C'))ac++;else ac--;if(v.indexOf('B')<v.indexOf('C'))bc++;else bc--;});
+       const es=[{from:ab>0?'B':'A',to:ab>0?'A':'B',w:Math.abs(ab)},{from:ac>0?'C':'A',to:ac>0?'A':'C',w:Math.abs(ac)},{from:bc>0?'C':'B',to:bc>0?'B':'C',w:Math.abs(bc)}];
+       es.forEach((e,i)=>{if(!e.w)return;const na=ns[e.from],nb=ns[e.to];drawArrow(ctx,na.x,na.y,nb.x,nb.y,'#34d399',2.5,e.w)});
+       Object.entries(ns).forEach(([k,n])=>{ctx.beginPath();ctx.arc(n.x,n.y,22,0,Math.PI*2);ctx.fillStyle='#06080f';ctx.fill();ctx.strokeStyle=k==='A'?'#38bdf8':k==='B'?'#818cf8':'#f472b6';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#e2e8f0';ctx.font='bold 16px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(k,n.x,n.y)});
+     }},
+    {name:'اکثریت',en:'Plurality',col:'var(--accent2)',ok:[1,0,1,1,0],
+     desc:'فقط انتخاب اول شمرده می‌شود؛ بیشترین رأی اول برنده است.',
+     run(){
+       const c={A:0,B:0,C:0};EV.forEach(v=>c[v[0]]++);
+       const sorted=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+       return `<div style="font-size:.84rem;margin-bottom:6px">شمارش انتخاب‌های اول:</div>
+       <div class="bars">
+         ${['A','B','C'].map(k=>`<div class="bcol"><div class="bval">${c[k]}</div>
+           <div class="bar" style="height:${c[k]*24}px;background:${k==='A'?'#38bdf8':k==='B'?'#818cf8':'#f472b6'}"></div>
+           <div class="blbl">${k}</div></div>`).join('')}
+       </div>
+       <div>نتیجه: <span class="w">${sorted[0][0]} برنده با ${sorted[0][1]} رأی</span></div>
+       <div style="font-size:.82rem;color:var(--red);margin-top:6px">⚠️ نقض کندورسه: ممکن است کاندیدایی همه مقایسه‌ها را ببرد اما اینجا برنده نشود!</div>`;
+     }},
+    {name:'بوردا',en:'Borda Count',col:'var(--yellow)',ok:[1,0,1,1,0],
+     desc:'اول=۲ امتیاز، دوم=۱، سوم=۰. بیشترین امتیاز برنده.',
+     run(){
+       const p={A:0,B:0,C:0};EV.forEach(v=>v.forEach((c,i)=>p[c]+=(2-i)));
+       const sorted=Object.entries(p).sort((a,b)=>b[1]-a[1]);
+       return `<div style="font-size:.84rem;margin-bottom:6px">امتیازدهی بر اساس جایگاه:</div>
+       <div class="bars">
+         ${['A','B','C'].map(k=>`<div class="bcol"><div class="bval">${p[k]} امتیاز</div>
+           <div class="bar" style="height:${p[k]*16}px;background:${k==='A'?'#38bdf8':k==='B'?'#818cf8':'#f472b6'}"></div>
+           <div class="blbl">${k}</div></div>`).join('')}
+       </div>
+       <div>نتیجه: <span class="w">${sorted[0][0]} برنده با ${sorted[0][1]} امتیاز</span></div>`;
+     }},
+    {name:'هری (حذف تدریجی)',en:'Hare / IRV',col:'var(--green)',ok:[1,0,1,0,0],
+     desc:'هر دور کمترین حذف شده و رأی‌هایش منتقل می‌شود تا کسی اکثریت بیاورد.',
+     run(){
+       let rem=['A','B','C'];let vs=EV.map(v=>[...v]);let html='';
+       let round=0;
+       while(rem.length>1){
+         round++;const cnt={};rem.forEach(c=>cnt[c]=0);
+         vs.forEach(v=>{for(let i=0;i<v.length;i++){if(rem.includes(v[i])){cnt[v[i]]++;break}}});
+         const total=vs.length;
+         html+=`<div class="sc on" style="margin:4px 0"><div class="sl">دور ${round}</div><div class="sb">
+           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+             ${rem.map(c=>`<span style="padding:3px 10px;border-radius:6px;font-size:.76rem;font-weight:600;background:rgba(255,255,255,.04);border:1px solid var(--border)">${c}: ${cnt[c]}</span>`).join('')}
+           </div></div></div>`;
+         if(Object.values(cnt).some(v=>v>total/2)){
+           const win=Object.entries(cnt).find(([k,v])=>v>total/2);
+           html+=`<div class="sc on" style="margin:4px 0;border-color:var(--green)"><div class="sb">نتیجه: <span class="w">${win[0]} برنده</span></div></div>`;
+           break;
+         }
+         const min=Object.entries(cnt).sort((a,b)=>a[1]-b[1])[0][0];
+         rem=rem.filter(c=>c!==min);
+         html+=`<div style="font-size:.8rem;color:var(--red);margin:2px 0">← ${min} حذف شد</div>`;
+       }
+       html+=`<div style="font-size:.82rem;color:var(--red);margin-top:6px">⚠️ نقض یکنواoy: بالا بردن یک کاندیدا می‌تواند باعث حذف زودتر او شود!</div>`;
+       return html;
+     }},
+    {name:'مقایسه زوجی با دستورکار ثابت',en:'Seq. Pairwise',col:'#c084fc',ok:[1,1,1,1,0],
+     desc:'ترتیب ثابتی مشخص شده: ابتدا دو تای اول، برنده با سومی، و... .',
+     run(){
+       let ab=0,bc=0;EV.forEach(v=>{if(v.indexOf('A')<v.indexOf('B'))ab++;else ab--;if(v.indexOf('B')<v.indexOf('C'))bc++;else bc--});
+       const w1=ab>0?'A':'B';
+       const w2=(w1==='A'?(EV.filter(v=>v.indexOf('A')<v.indexOf('C')).length>2?'A':'C'):(bc>0?'B':'C'));
+       return `<div style="font-size:.84rem;margin-bottom:8px">ترتیب دستورکار: A, B, C</div>
+         <div class="sc on" style="margin:4px 0;border-color:var(--accent2)"><div class="sl">دور ۱: A vs B</div>
+           <div class="sb">نتیجه: <span class="w">${w1} برنده</span> (${ab>0?'A +'+ab:'B +'+(-ab)})</div></div>
+         <div class="sc on" style="margin:4px 0;border-color:var(--accent)"><div class="sl">دور ۲: ${w1} vs C</div>
+           <div class="sb">نتیجه: <span class="w">${w2} برنده نهایی</span></div></div>
+         <div style="font-size:.82rem;color:var(--red);margin-top:6px">⚠️ نقض IIA: اگر ترتیب دستورکار را عوض کنیم (بدون تغییر رأی‌ها)، برنده عوض می‌شود!</div>`;
+     }},
+    {name:'دیکتاتوری',en:'Dictatorship',col:'var(--red)',ok:[1,1,1,1,1],
+     desc:'یک نفر از پیش تصمیم‌گیرنده نهایی است.',
+     run(){
+       return `<div class="sc on" style="border-color:var(--red)"><div class="sl">رأی‌دهنده ۱ = دیکتاتور</div>
+         <div class="sb">ترجیح: A ≻ B ≻ C → برنده: <span class="w">A</span><br>
+         <span style="color:var(--muted);font-size:.82rem">نظر ۴ نفر دیگر کاملاً نادیده!</span></div></div>
+         <div style="padding:10px;border-radius:10px;background:rgba(248,113,113,.04);border:1px solid rgba(248,113,113,.15);margin-top:8px;font-size:.82rem">
+           ✅ تمام ۵ شرط برقرار! اما ❌ <b>غیراخلاقی</b> — نظر بقیه نادیده.</div>`;
+     }}
+  ];
+
+  _methodsData.length=0;M.forEach(m=>_methodsData.push(m));
+  const el=document.getElementById('methods');
+  el.innerHTML=M.map((m,i)=>`
+    <div class="mp" style="border-color:${m.col}25">
+      <div class="mh" onclick="toggleM(${i})" id="mh${i}">
+        <div><span style="font-weight:700;color:${m.col}">${m.name}</span>
+        <span style="color:var(--dim);font-size:.72rem;margin-right:5px">${m.en}</span></div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${m.ok.map((k,j)=>`<span style="font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:600;
+            background:${k?'rgba(52,211,153,.1)':'rgba(248,113,113,.1)'};
+            color:${k?'var(--green)':'var(--red)'}">${CN[j][0]}</span>`).join('')}
+          <span class="arr">▼</span>
+        </div>
+      </div>
+      <div class="mb" id="mb${i}">
+        <div style="margin-top:12px;font-size:.84rem;color:var(--muted)">${m.desc}</div>
+        <div style="margin:10px 0">${m.run()}</div>
+        <div style="font-size:.76rem;color:var(--muted)">
+          شرط‌ها: ${m.ok.map((k,j)=>`<span style="margin-left:6px;color:${k?'var(--green)':'var(--red)'}">
+            ${k?'✓':'✗'} ${CN[j]}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // After methods render, draw graphs where needed
+  setTimeout(()=>M[0].drawGraph(),100);
+
+  // Final table
+  document.getElementById('cmpTbl').innerHTML=`
+    <tr><th style="text-align:right">روش</th>${CN.map(c=>`<th>${c}</th>`).join('')}</tr>
+    ${M.map(m=>`<tr><td style="text-align:right;font-weight:600;color:${m.col}">${m.name}</td>
+      ${m.ok.map(k=>`<td><span class="${k?'ck-w':'ck-l'}">${k?'✓':'✗'}</span></td>`).join('')}</tr>`).join('')}`;
+
+  document.getElementById('cmpEnd').innerHTML=`
+    <div class="sc on" style="border-color:var(--red);background:rgba(248,113,113,.03);margin-top:10px">
+      <div class="sl" style="color:var(--red)">⚠️ نتیجه‌گیری</div>
+      <div class="sb">هیچ روشی (به جز دیکتاتوری) نمی‌تواند تمام ۵ شرط را برآورده کند.
+        <br><span style="color:var(--yellow);font-weight:700">🔑 این دقیقاً قضیه ناممکنی آرو است.</span></div></div>`;
+}
+
+const _methodsData=[];
+function toggleM(i){
+  document.getElementById('mh'+i).classList.toggle('op');
+  const mb=document.getElementById('mb'+i);
+  mb.classList.toggle('op');
+  // Draw graph if method 0 (Condorcet) is opened
+  if(i===0&&mb.classList.contains('op'))setTimeout(()=>{
+    const m=_methodsData[0];if(m&&m.drawGraph)m.drawGraph();
+  },100);
+}
+
+// ═══════ S7: RADAR ═══════
+function drawRadar(){
+  const c=document.getElementById('radarC');if(!c)return;
+  const ctx=c.getContext('2d');const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2+10,R=120;
+  const labels=['AAW','کندورسه','پارتو','یکنواoy','IIA'];
+  const angles=labels.map((_,i)=>-Math.PI/2+(i/5)*Math.PI*2);
+
+  // Grid rings
+  for(let r=1;r<=5;r++){
+    ctx.beginPath();angles.forEach((a,i)=>{const x=cx+R*(r/5)*Math.cos(a),y=cy+R*(r/5)*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+    ctx.closePath();ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();
+  }
+  // Axes + labels
+  angles.forEach((a,i)=>{
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+    ctx.strokeStyle='rgba(255,255,255,.08)';ctx.stroke();
+    const lx=cx+(R+22)*Math.cos(a),ly=cy+(R+22)*Math.sin(a);
+    ctx.fillStyle='#94a3b8';ctx.font='11px Vazirmatn';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(labels[i],lx,ly);
+  });
+
+  const ms=[
+    {name:'کندورسه',c:[1,1,1,1,0],col:'#38bdf8'},
+    {name:'اکثریت',c:[1,0,1,1,0],col:'#818cf8'},
+    {name:'بوردا',c:[1,0,1,1,0],col:'#fbbf24'},
+    {name:'هری',c:[1,0,1,0,0],col:'#34d399'},
+    {name:'زوجی',c:[1,1,1,1,0],col:'#c084fc'},
+    {name:'دیکتاتوری',c:[1,1,1,1,1],col:'#f87171'}
+  ];
+
+  ms.forEach((m,mi)=>{
+    ctx.beginPath();
+    m.c.forEach((v,i)=>{const r=v?R:R*0.2;const x=cx+r*Math.cos(angles[i]),y=cy+r*Math.sin(angles[i]);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+    ctx.closePath();ctx.fillStyle=m.col+'12';ctx.fill();ctx.strokeStyle=m.col;ctx.lineWidth=1.8;ctx.stroke();
+    // Legend
+    const lx=20+(mi%3)*160,ly=H-12-(mi<3?0:18);
+    ctx.fillStyle=m.col;ctx.font='bold 10px Vazirmatn';ctx.textAlign='right';
+    ctx.fillText('● '+m.name,lx,ly);
+  });
+}
+
+// ═══════ INIT ═══════
+window.addEventListener('DOMContentLoaded',()=>{
+  initVoters();initConds();initSys();initMethods();updateUI();
+});
+</script>
+</body>
+</html>
